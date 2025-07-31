@@ -37,4 +37,4 @@ images:
   - 'europe-north1-docker.pkg.dev/$PROJECT_ID/cognify-suite/app:$COMMIT_SHA'
 
 # Valgfrit: Sæt en timeout for hele byggeprocessen.
-timeout: '1200s'
+timeout: '1200s' 
