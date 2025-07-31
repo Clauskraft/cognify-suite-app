@@ -36,5 +36,10 @@ steps:
 images:
   - 'europe-north1-docker.pkg.dev/$PROJECT_ID/cognify-suite/app:$COMMIT_SHA'
 
+# NYT AFSNIT: Konfiguration af logging for at løse build-fejl.
+# Dette instruerer Cloud Build i at bruge standard Cloud Logging.
+options:
+  logging: CLOUD_LOGGING_ONLY
+
 # Valgfrit: Sæt en timeout for hele byggeprocessen.
-timeout: '1200s' 
+timeout: '1200s'
