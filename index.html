@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cognify Learning Suite - V3.1 (Vertex AI)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link id="dynamic-font-link" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .gradient-bg { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); }
+        .main-gradient-bg { background: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%); }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .tab-btn.active { border-color: #3b82f6; background-color: white; color: #3b82f6; }
+    </style>
+</head>
+<body class="gradient-bg antialiased text-slate-800">
+
+    <div class="min-h-screen flex flex-col items-center justify-center p-4 lg:p-8">
+        <div class="w-full max-w-screen-2xl mx-auto bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col">
+            
+            <header class="p-6 border-b border-slate-200 bg-white/50 flex justify-between items-center flex-shrink-0">
+                <div class="flex items-center space-x-4">
+                    <div class="bg-blue-600 p-3 rounded-xl shadow-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M12 11v0a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"></path><path d="M12 14v0a5 5 0 1 0 0-10 5 5 0 0 0 0 10z"></path></svg>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl lg:text-3xl font-bold text-slate-900">Cognify Learning Suite V3.1</h1>
+                        <p class="text-slate-600 mt-1">Drevet af Google Cloud Vertex AI</p>
+                    </div>
+                </div>
+                <div>
+                    <button id="generate-platform-btn" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-green-700 transition-colors disabled:bg-slate-400 disabled:cursor-not-allowed flex items-center" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Eksporter Modul
+                    </button>
+                </div>
+            </header>
+
+            <div class="border-b border-slate-200 bg-slate-50 px-6">
+                <nav class="-mb-px flex space-x-6">
+                    <button id="tab1-btn" onclick="showTab('tab1')" class="tab-btn active text-slate-600 hover:text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg">
+                        1. Design & Kontekst
+                    </button>
+                    <button id="tab2-btn" onclick="showTab('tab2')" class="tab-btn text-slate-500 hover:text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-lg">
+                        2. Live E-læringsmodul
+                    </button>
+                </nav>
+            </div>
+
+            <main class="flex-grow min-h-[70vh]">
+                <div id="tab1" class="p-8 flex flex-col lg:flex-row gap-8">
+                    <div class="lg:w-1/2 space-y-6">
+                        <div>
+                            <label for="user-goal" class="text-xl font-semibold text-slate-800 mb-2 block">1. Beskriv dit læringsmål</label>
+                            <textarea id="user-goal" class="w-full p-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none transition" rows="3" placeholder="Eksempel: Et introduktionskursus til nye medarbejdere om vores firma-værdier og historie."></textarea>
+                        </div>
+                        <div>
+                            <label for="url-input" class="text-xl font-semibold text-slate-800 mb-2 block">2. Angiv virksomhedens URL</label>
+                            <input type="text" id="url-input" class="w-full p-3 rounded-md border border-slate-300 focus:ring-2 focus:ring-pink-500 focus:outline-none transition" placeholder="f.eks. lego.com, novonordisk.com...">
+                        </div>
+                         <div>
+                            <label for="user-context" class="text-xl font-semibold text-slate-800 mb-2 block">3. Angiv Kontekst & Guidance</label>
+                            <textarea id="user-context" class="w-full p-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-green-500 focus:outline-none transition" rows="8" placeholder="Indsæt relevant tekst, nøglepunkter, eller beskriv den ønskede tone og stil..."></textarea>
+                        </div>
+                    </div>
+                    <div class="lg:w-1/2 flex flex-col">
+                        <div class="flex-grow p-6 bg-slate-50 rounded-lg border border-slate-200">
+                             <h3 class="text-xl font-semibold text-slate-800 mb-4">Sådan virker det:</h3>
+                             <ol class="list-decimal list-inside space-y-4 text-slate-600">
+                                 <li>Udfyld felterne med dit mål, virksomhedens URL og eventuel ekstra kontekst.</li>
+                                 <li>Klik på 'Generer Kursus'. Vores AI, Læringsarkitekten, går i gang.</li>
+                                 <li>AI'en analyserer først virksomhedens visuelle identitet og branche via den angivne URL.</li>
+                                 <li>Derefter bruger den dit læringsmål og din kontekst til at skrive et komplet, skræddersyet kursus.</li>
+                                 <li>Når processen er færdig, vil du automatisk se det færdige resultat i fanen "Live E-læringsmodul".</li>
+                             </ol>
+                        </div>
+                        <button id="start-design-btn" class="w-full mt-6 bg-blue-600 text-white p-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition-colors flex items-center justify-center shadow-lg hover:shadow-xl">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                            Generer Kursus
+                        </button>
+                    </div>
+                </div>
+
+                <div id="tab2" class="hidden main-gradient-bg p-4 md:p-8 custom-scrollbar overflow-y-auto">
+                    <div id="module-container" class="w-full max-w-5xl mx-auto">
+                        <div class="text-center py-16 text-slate-500 h-full flex flex-col justify-center items-center">
+                            <p>Det genererede e-læringsmodul vil blive vist her...</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const startDesignBtn = document.getElementById('start-design-btn');
+        const userGoal = document.getElementById('user-goal');
+        const urlInput = document.getElementById('url-input');
+        const userContext = document.getElementById('user-context');
+        const moduleContainer = document.getElementById('module-container');
+        const generatePlatformBtn = document.getElementById('generate-platform-btn');
+        const dynamicFontLink = document.getElementById('dynamic-font-link');
+        const tab1Btn = document.getElementById('tab1-btn');
+        const tab2Btn = document.getElementById('tab2-btn');
+        const tab1Content = document.getElementById('tab1');
+        const tab2Content = document.getElementById('tab2');
+
+        // Global state
+        let currentCourseData = { theme: null, finalHtml: null };
+
+        // --- UI FUNCTIONS ---
+        function showTab(tabName) {
+            if (tabName === 'tab1') {
+                tab1Content.classList.remove('hidden');
+                tab2Content.classList.add('hidden');
+                tab1Btn.classList.add('active');
+                tab2Btn.classList.remove('active');
+            } else {
+                tab1Content.classList.add('hidden');
+                tab2Content.classList.remove('hidden');
+                tab1Btn.classList.remove('active');
+                tab2Btn.classList.add('active');
+            }
+        }
+
+        function updateDynamicFont(fontName) {
+            if (!fontName) return;
+            const fontUrl = `https://fonts.googleapis.com/css2?family=${fontName.replace(/ /g, '+')}:wght@400;700&display=swap`;
+            dynamicFontLink.href = fontUrl;
+        }
+
+        // --- VERTEX AI SERVICE ---
+        // These are placeholders. In a real GCP environment, these would be discovered or pre-configured.
+        const PROJECT_ID = 'cognify-suite-prod-987654';
+        const LOCATION = 'europe-north1';
+        const MODEL_ID = 'gemini-1.5-flash-001';
+
+        async function callVertexAI(prompt, isJson = false) {
+            // NOTE: This function is designed to be run from within a Google Cloud environment (like Cloud Run)
+            // It uses the application's default credentials to authenticate.
+            const accessToken = await getAccessToken();
+            const apiUrl = `https://${LOCATION}-aiplatform.googleapis.com/v1/projects/${PROJECT_ID}/locations/${LOCATION}/publishers/google/models/${MODEL_ID}:generateContent`;
+
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: prompt }] }]
+            };
+
+            if (isJson) {
+                payload.generationConfig = {
+                    responseMimeType: "application/json",
+                };
+            }
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorBody = await response.text();
+                throw new Error(`Vertex AI API-fejl: ${response.status} - ${errorBody}`);
+            }
+            const result = await response.json();
+            if (!result.candidates?.[0]?.content?.parts?.[0]?.text) {
+                throw new Error("Uventet svarformat fra Vertex AI.");
+            }
+            return result.candidates[0].content.parts[0].text;
+        }
+
+        async function getAccessToken() {
+            // This function simulates fetching an access token. In a real GCP environment,
+            // you'd use the metadata server. For this standalone demo, we'll return a placeholder.
+            // In your deployed Cloud Run app, this would be replaced with a real call.
+            // e.g., fetch('http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token', { headers: { 'Metadata-Flavor': 'Google' } })
+            console.warn("Using placeholder for Access Token. This will fail outside of a test environment.");
+            return "DUMMY_ACCESS_TOKEN_FOR_DEMO"; // This will cause the API call to fail, but demonstrates the structure.
+        }
+
+        // --- LIVE ANALYSIS & GENERATION ---
+        async function startGenerationProcess() {
+            const goal = userGoal.value.trim();
+            const domain = urlInput.value.trim();
+            const context = userContext.value.trim();
+
+            if (!goal || !domain) {
+                alert("Udfyld venligst både læringsmål og virksomheds-URL.");
+                return;
+            }
+
+            startDesignBtn.disabled = true;
+            startDesignBtn.innerHTML = `<div class="loader mr-2"></div> Analyserer & Designer...`;
+            generatePlatformBtn.disabled = true;
+            showTab('tab2');
+            moduleContainer.innerHTML = `<div class="flex justify-center items-center h-full"><div class="loader"></div><p class="ml-4 text-slate-600 text-lg">Analyserer virksomhedens identitet...</p></div>`;
+
+            try {
+                const themePrompt = `Analyser virksomheden på domænet "${domain}" og med denne kontekst: "${context}". Returner KUN et JSON-objekt med: {"name": "Virksomhedsnavn", "industry": "Branche", "colors": {"primary": "#hex", "secondary": "#hex"}, "font": "Google Font Navn"}. Vælg farver og skrifttype der matcher brandet.`;
+                const themeJsonString = await callVertexAI(themePrompt, true);
+                const theme = JSON.parse(themeJsonString);
+                currentCourseData.theme = theme;
+                updateDynamicFont(theme.font);
+
+                moduleContainer.innerHTML = `<div class="flex justify-center items-center h-full"><div class="loader"></div><p class="ml-4 text-slate-600 text-lg">Genererer kursusindhold...</p></div>`;
+                const contentPrompt = `
+                    Du er en ekspert i e-læring. Skab et komplet, selvstændigt HTML-dokument for et e-læringsmodul.
+                    Mål: ${goal}
+                    Virksomhed: ${theme.name} (${theme.industry})
+                    Kontekst/Guidance: ${context}
+                    Instruktioner:
+                    1. Generer hele HTML-strukturen, inklusiv <head> og <body>.
+                    2. Brug TailwindCSS klasser til styling.
+                    3. Indsæt en <style> blok i <head> for at definere CSS-variabler for temaet: --primary-color: ${theme.colors.primary}; --secondary-color: ${theme.colors.secondary}; --font-family: '${theme.font}', sans-serif;
+                    4. Brug disse CSS-variabler til at style elementer som overskrifter og knapper.
+                    5. Inkluder en header med virksomhedens navn og en placeholder til logoet: https://placehold.co/150x50/${theme.colors.primary.substring(1)}/FFFFFF?text=${theme.name.replace(/ /g, '+')}
+                    6. Strukturer indholdet logisk med overskrifter, afsnit og lister. Gør det engagerende.
+                    7. Inkluder mindst ét interaktivt element (f.eks. en simpel quiz, et refleksionsspørgsmål eller en "vidste du at"-boks).
+                    8. Returner KUN den rå HTML-kode.
+                `;
+                const finalHtml = await callVertexAI(contentPrompt);
+                currentCourseData.finalHtml = finalHtml;
+                
+                moduleContainer.innerHTML = finalHtml;
+                generatePlatformBtn.disabled = false;
+
+            } catch (error) {
+                console.error("Fejl i designprocessen:", error);
+                moduleContainer.innerHTML = `<div class="p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-md">
+                    <h4 class="font-bold">Der opstod en fejl under genereringen</h4>
+                    <p>${error.message}</p>
+                    <p class="text-sm mt-2"><strong>Note:</strong> API-kald vil fejle i dette lokale preview. Denne funktionalitet er designet til at køre i et Google Cloud-miljø (f.eks. Cloud Run), hvor den automatisk får adgangsrettigheder.</p>
+                    <button onclick="showTab('tab1')" class="mt-4 px-4 py-2 bg-red-600 text-white rounded">Prøv igen</button>
+                </div>`;
+            } finally {
+                startDesignBtn.disabled = false;
+                startDesignBtn.innerHTML = `Generer Kursus`;
+            }
+        }
+
+        function generateAndDownloadModule() {
+            if (!currentCourseData.finalHtml) {
+                alert("Der er intet modul at eksportere. Generer venligst et kursus først.");
+                return;
+            }
+            const blob = new Blob([currentCourseData.finalHtml], { type: 'text/html' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            const filename = `elearning-modul-${currentCourseData.theme.name.toLowerCase().replace(/ /g, '-')}.html`;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // --- EVENT HANDLERS ---
+        startDesignBtn.addEventListener('click', startGenerationProcess);
+        generatePlatformBtn.addEventListener('click', generateAndDownloadModule);
+    </script>
+</body>
+</html>

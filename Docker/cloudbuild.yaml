@@ -1,0 +1,42 @@
+# This file defines the automated build, push, and deploy pipeline for Cloud Build.
+# It's triggered by changes in your connected Git repository.
+
+steps:
+  # Step 1: Build the Docker container image.
+  # This step uses the Dockerfile in your repository to create a container image.
+  # The image is tagged with the commit SHA for version tracking.
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'europe-north1-docker.pkg.dev/$PROJECT_ID/cognify-suite/app:$COMMIT_SHA', '.']
+    id: 'Build'
+
+  # Step 2: Push the container image to Artifact Registry.
+  # Artifact Registry is Google Cloud's recommended service for storing container images.
+  # It's secure, private, and integrates seamlessly with the ecosystem.
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'europe-north1-docker.pkg.dev/$PROJECT_ID/cognify-suite/app:$COMMIT_SHA']
+    id: 'Push'
+
+  # Step 3: Deploy the new container image to Cloud Run.
+  # This is the final step that makes your application live.
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'cognify-suite-service' # The name of your Cloud Run service.
+      - '--image=europe-north1-docker.pkg.dev/$PROJECT_ID/cognify-suite/app:$COMMIT_SHA'
+      - '--region=europe-north1' # Recommended region for your location.
+      - '--platform=managed'
+      - '--allow-unauthenticated' # Allows public access to the web app.
+      # CRITICAL: This is where we securely inject the API key from Secret Manager.
+      # It makes the secret available as an environment variable named GEMINI_API_KEY inside your application.
+      # The 'latest' version of the secret will always be used.
+      - '--set-secrets=GEMINI_API_KEY=cognify-gemini-api-key:latest'
+    id: 'Deploy'
+
+# This section specifies the final image that was built, which can be used for logging and tracking.
+images:
+  - 'europe-north1-docker.pkg.dev/$PROJECT_ID/cognify-suite/app:$COMMIT_SHA'
+
+# Optional: Set a timeout for the entire build process.
+timeout: '1200s'

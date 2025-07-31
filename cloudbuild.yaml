@@ -1,0 +1,40 @@
+# Denne fil definerer den automatiserede bygge-, push- og udrulnings-pipeline for Cloud Build.
+# Den aktiveres af ændringer i dit tilsluttede Git-repository.
+
+steps:
+  # Trin 1: Byg Docker container-imaget.
+  # Dette trin bruger Dockerfile i dit repository til at skabe et container-image.
+  # Imaget bliver tagget med det unikke commit-SHA for at sikre version-sporing.
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'europe-north1-docker.pkg.dev/$PROJECT_ID/cognify-suite/app:$COMMIT_SHA', '.']
+    id: 'Build'
+
+  # Trin 2: Push container-imaget til Artifact Registry.
+  # Artifact Registry er Google Clouds anbefalede service til sikker opbevaring af private container-images.
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'europe-north1-docker.pkg.dev/$PROJECT_ID/cognify-suite/app:$COMMIT_SHA']
+    id: 'Push'
+
+  # Trin 3: Udrul det nye container-image til Cloud Run.
+  # Dette er det sidste trin, der gør din applikation live.
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'cognify-suite-service' # Navnet på din Cloud Run service.
+      - '--image=europe-north1-docker.pkg.dev/$PROJECT_ID/cognify-suite/app:$COMMIT_SHA'
+      - '--region=europe-north1' # Anbefalet region for din placering.
+      - '--platform=managed'
+      - '--allow-unauthenticated' # Giver offentlig adgang til web-applikationen.
+      # BEMÆRK: Vi bruger ikke '--set-secrets' her, da Vertex AI-kaldet
+      # automatisk vil bruge service-kontoens tilladelser, som vi har tildelt i IAM.
+      # Dette er en mere sikker og integreret metode.
+    id: 'Deploy'
+
+# Denne sektion specificerer det endelige image, der blev bygget, til logning og sporing.
+images:
+  - 'europe-north1-docker.pkg.dev/$PROJECT_ID/cognify-suite/app:$COMMIT_SHA'
+
+# Valgfrit: Sæt en timeout for hele byggeprocessen.
+timeout: '1200s'
