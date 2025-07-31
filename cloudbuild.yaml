@@ -27,9 +27,9 @@ steps:
       - '--region=europe-north1' # Anbefalet region for din placering.
       - '--platform=managed'
       - '--allow-unauthenticated' # Giver offentlig adgang til web-applikationen.
-      # BEMÆRK: Vi bruger ikke '--set-secrets' her, da Vertex AI-kaldet
-      # automatisk vil bruge service-kontoens tilladelser, som vi har tildelt i IAM.
-      # Dette er en mere sikker og integreret metode.
+      # NY LINJE: Denne linje er tilføjet for at løse 401-fejlen.
+      # Den tildeler eksplicit den korrekte service-konto til Cloud Run-tjenesten.
+      - '--service-account=cognify-sa@$PROJECT_ID.iam.gserviceaccount.com'
     id: 'Deploy'
 
 # Denne sektion specificerer det endelige image, der blev bygget, til logning og sporing.
